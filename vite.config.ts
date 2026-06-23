@@ -3,7 +3,10 @@ import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const base = process.env.VITE_BASE_PATH ?? '/'
+
 export default defineConfig({
+  base,
   plugins: [
     react(),
     babel({ presets: [reactCompilerPreset()] }),
@@ -17,22 +20,22 @@ export default defineConfig({
         theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
-        start_url: '/',
-        scope: '/',
+        start_url: base,
+        scope: base,
         icons: [
           {
-            src: '/pwa/launchericon-192x192.png',
+            src: `${base}pwa/launchericon-192x192.png`,
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: '/pwa/launchericon-512x512.png',
+            src: `${base}pwa/launchericon-512x512.png`,
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/pwa/launchericon-512x512.png',
+            src: `${base}pwa/launchericon-512x512.png`,
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'

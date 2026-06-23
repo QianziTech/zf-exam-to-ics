@@ -11,17 +11,14 @@ export const usePWAInstall = () => {
 
   useEffect(() => {
     const handler = (e: Event) => {
+      if (window.matchMedia('(display-mode: standalone)').matches) return;
+
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setIsInstallable(true);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
-
-    // 检查是否已安装
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstallable(false);
-    }
 
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
