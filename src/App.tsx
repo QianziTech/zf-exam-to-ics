@@ -1,4 +1,5 @@
-import { Layout, Steps, ConfigProvider, theme } from 'antd';
+import { Layout, Steps, ConfigProvider, theme, FloatButton } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
 import zhCN from 'antd/locale/zh_CN';
 import { useExamStore } from './stores/examStore';
 import { FileUploader } from './components/FileUploader';
@@ -6,12 +7,14 @@ import { ColumnMapper } from './components/ColumnMapper';
 import { ExamInfo } from './components/ExamInfo';
 import { ReminderConfig } from './components/ReminderConfig';
 import { DownloadButton } from './components/DownloadButton';
+import { usePWAInstall } from './hooks/usePWAInstall';
 import './App.css';
 
 const { Header, Content, Footer } = Layout;
 
 export default function App() {
   const { step } = useExamStore();
+  const { isInstallable, handleInstall } = usePWAInstall();
 
   // 映射当前步骤为 Steps 组件的索引
   const getStepIndex = () => {
@@ -91,10 +94,10 @@ export default function App() {
       <Layout className="app-layout">
         <Header className="app-header">
           <div className="header-title-area">
-            <h1 className="main-logo-title">🎓 期末考试日历导入工具</h1>
+            <h1 className="main-logo-title">🎓 考试安排转日历文件</h1>
             <p className="sub-logo-title">Exam to ICS Calendar Converter</p>
           </div>
-          
+
           <div className="steps-container">
             <Steps
               current={getStepIndex()}
@@ -108,7 +111,7 @@ export default function App() {
             />
           </div>
         </Header>
-        
+
         <Content className="app-content">
           <div className="workspace-card">
             {renderStepComponent()}
@@ -119,6 +122,17 @@ export default function App() {
           <p>© 2026 QtZero 期末考试日历导入工具.</p>
           <p className="privacy-badge">🔒 隐私说明：解析完全基于客户端本地进行，系统不会以任何形式收集、记录或上传您的 Excel 数据。</p>
         </Footer>
+
+        {/* PWA 安装提示浮动按钮 */}
+        {isInstallable && (
+          <FloatButton
+            icon={<DownloadOutlined />}
+            type="primary"
+            tooltip="安装到桌面"
+            onClick={handleInstall}
+            style={{ right: 24, bottom: 24 }}
+          />
+        )}
       </Layout>
     </ConfigProvider>
   );
