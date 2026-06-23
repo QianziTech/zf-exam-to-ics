@@ -3,6 +3,7 @@ export interface ExamItem {
   id: string;              // 唯一标识符
   courseName: string;      // 课程名称
   examName: string;        // 考试名称（从Excel读取或默认"期末考试"）
+  originalExamName?: string; // 原始Excel中的名称（用于追溯）
   examTime: string;        // 原始时间字符串 "2026-07-06(12:00-14:00)"
   location: string;        // 考试地点
   seatNumber: string;      // 考试座号
@@ -34,6 +35,11 @@ export interface ExamState {
   rawExcelData: Record<string, string | number>[] | null;        // 原始Excel数据
   excelColumns: string[] | null;     // Excel列名列表
 
+  // 考试名称管理
+  defaultExamName: string;           // 全局默认考试名称（当Excel无此列时使用）
+  examNameTypes: string[];           // 所有已出现的考试名称列表（用于下拉选择）
+  selectedCategories: string[];       // 选中的考试分类（用于导出过滤）
+
   // UI 状态
   step: 'upload' | 'mapping' | 'confirm' | 'download';
   columnMapping: ColumnMapping | null;
@@ -46,6 +52,10 @@ export interface ExamState {
   updateExam: (id: string, updates: Partial<ExamItem>) => void;
   deleteExam: (id: string) => void;
   setGlobalReminderMinutes: (minutes: number) => void;
+  setDefaultExamName: (name: string) => void;
+  updateExamNameTypes: () => void;
+  batchUpdateExamName: (oldName: string, newName: string) => void;
+  setSelectedCategories: (categories: string[]) => void;
   setStep: (step: ExamState['step']) => void;
   reset: () => void;
 }

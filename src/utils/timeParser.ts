@@ -1,6 +1,7 @@
 import { parse } from 'date-fns/parse';
 import type { ParsedExamTime } from '../types/exam';
 import { TIME_FORMAT_REGEX, EXAM_DURATION_LIMITS } from '../constants/fieldMappings';
+import { TimeParseError, wrapError } from './errors';
 
 /**
  * 解析考试时间字符串
@@ -16,7 +17,7 @@ export function parseExamTime(timeStr: string): ParsedExamTime {
   const match = trimmed.match(TIME_FORMAT_REGEX);
 
   if (!match) {
-    throw new Error(
+    throw new TimeParseError(
       `时间格式错误: "${timeStr}"。` +
       `正确格式为: YYYY-MM-DD(HH:mm-HH:mm)，例如: 2026-07-06(12:00-14:00)`
     );
@@ -41,12 +42,12 @@ export function parseExamTime(timeStr: string): ParsedExamTime {
 
     // 验证日期有效性
     if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
-      throw new Error(`日期无效: ${date}`);
+      throw new TimeParseError(`日期无效: ${date}`);
     }
 
     // 验证时间逻辑
     if (endDateTime <= startDateTime) {
-      throw new Error(`结束时间必须晚于开始时间: ${startTime} -> ${endTime}`);
+      throw new TimeParseError(`结束时间必须晚于开始时间: ${startTime} -> ${endTime}`);
     }
 
     // 计算考试时长（分钟）
@@ -54,13 +55,13 @@ export function parseExamTime(timeStr: string): ParsedExamTime {
 
     // 验证时长范围
     if (durationMinutes < EXAM_DURATION_LIMITS.min) {
-      throw new Error(
+      throw new TimeParseError(
         `考试时长过短（${durationMinutes}分钟），最短应为${EXAM_DURATION_LIMITS.min}分钟`
       );
     }
 
     if (durationMinutes > EXAM_DURATION_LIMITS.max) {
-      throw new Error(
+      throw new TimeParseError(
         `考试时长过长（${durationMinutes}分钟），最长应为${EXAM_DURATION_LIMITS.max}分钟`
       );
     }
@@ -73,10 +74,7 @@ export function parseExamTime(timeStr: string): ParsedExamTime {
       endDateTime,
     };
   } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error(`时间解析失败: ${timeStr}`);
+    throw wrapError(error, TimeParseError, `时间解析失败: ${timeStr}`);
   }
 }
 

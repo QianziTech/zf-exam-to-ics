@@ -154,23 +154,40 @@ export function validateExamList(exams: ExamItem[]): ValidationError[] {
  * 从原始数据和列映射创建考试项
  * @param rawData - 原始Excel数据
  * @param mapping - 列映射
+ * @param defaultExamName - 全局默认考试名称（当Excel无考试名称列时使用）
  * @returns 考试项列表和验证错误
  */
 export function createExamsFromRawData(
   rawData: Record<string, string | number>[],
-  mapping: ColumnMapping
+  mapping: ColumnMapping,
+  defaultExamName: string = '期末考试'
 ): { exams: ExamItem[]; errors: ValidationError[] } {
   const exams: ExamItem[] = [];
   const errors: ValidationError[] = [];
 
   rawData.forEach((row, index) => {
     try {
+      // 读取考试名称
+      let examName = defaultExamName;
+      let originalExamName: string | undefined = undefined;
+
+      if (mapping.examName) {
+        const rawValue = String(row[mapping.examName] || '').trim();
+        if (rawValue) {
+          examName = rawValue;
+          originalExamName = rawValue; // 保存原始值
+        } else {
+          // Excel有该列但此行为空，使用默认值
+          examName = defaultExamName;
+        }
+      }
+      // 如果mapping.examName不存在，使用defaultExamName
+
       const exam: ExamItem = {
         id: `exam-${Date.now()}-${index}`,
         courseName: mapping.courseName ? String(row[mapping.courseName] || '').trim() : '',
-        examName: mapping.examName
-          ? String(row[mapping.examName] || '期末考试').trim()
-          : '期末考试',
+        examName,
+        originalExamName,
         examTime: mapping.examTime ? String(row[mapping.examTime] || '').trim() : '',
         location: mapping.location ? String(row[mapping.location] || '').trim() : '',
         seatNumber: mapping.seatNumber ? String(row[mapping.seatNumber] || '').trim() : '',

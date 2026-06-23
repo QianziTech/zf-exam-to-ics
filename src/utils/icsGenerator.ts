@@ -1,6 +1,7 @@
 import { createEvents, type EventAttributes } from 'ics';
 import type { ExamItem } from '../types/exam';
 import { parseExamTime } from './timeParser';
+import { ICSGenerationError, wrapError } from './errors';
 
 /**
  * 生成 ICS 文件内容
@@ -14,7 +15,7 @@ export function generateICS(
   globalReminderMinutes: number
 ): string {
   if (exams.length === 0) {
-    throw new Error('没有考试数据，无法生成 ICS 文件。');
+    throw new ICSGenerationError('没有考试数据，无法生成 ICS 文件。');
   }
 
   const events: EventAttributes[] = exams.map(exam => {
@@ -56,11 +57,11 @@ export function generateICS(
   const { error, value } = createEvents(events);
 
   if (error) {
-    throw new Error(`生成 ICS 失败: ${error.message}`);
+    throw new ICSGenerationError(`生成 ICS 失败: ${error.message}`);
   }
 
   if (!value) {
-    throw new Error('生成 ICS 失败: 返回内容为空。');
+    throw new ICSGenerationError('生成 ICS 失败: 返回内容为空。');
   }
 
   return value;
@@ -106,9 +107,6 @@ export function generateAndDownloadICS(
     const icsContent = generateICS(exams, globalReminderMinutes);
     downloadICS(icsContent, filename);
   } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('生成并下载 ICS 文件失败。');
+    throw wrapError(error, ICSGenerationError, '生成并下载 ICS 文件失败');
   }
 }

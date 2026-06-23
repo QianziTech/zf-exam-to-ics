@@ -1,75 +1,50 @@
-# React + TypeScript + Vite
+# 考试安排Excel转ICS日历工具
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+本工具支持处理从教务系统导出的Excel文件，转换为日历ICS文件，可供导入至手机、电脑日历APP并提醒考试时间。
 
-Currently, two official plugins are available:
+## 使用方法
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. 请从学校教务系统中获取考试安排文件。需确保您所在院校教务系统启用了考试安排导出至Excel文件功能。
+2. 在本工具中，选择导出的Excel文件。
+3. 系统会自动识别Excel文件对应的列名，若识别失败或存疑，需手动匹配相应字段。若识别成功，则进入信息确认阶段
+4. 确认录入的考试信息与Excel文件是否一致，并确认考试名称分配是否正确。您可在此设置考试提醒时间，修改错误读取的考试座号与地点安排，也可以返回上一页重新选择列名进行纠正。
+5. 点击“生成并下载ICS文件”完成ICS日历文件导出。
 
-## React Compiler
+## 在线使用
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+（待完善）
 
-Note: This will impact Vite dev & build performances.
+## 手动部署
 
-## Expanding the ESLint configuration
+本工具为单页应用，支持手动部署到各大服务器。具体操作方法如下：
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. 克隆本项目文件
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/QianziTech/zf-exam-to-ics
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. 确保本机安装有Node.JS,NPM工具。运行以下命令安装依赖与生成文件：
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install -g pnpm
+pnpm install
+pnpm build
 ```
+
+3. 将 `/dist`文件夹下的产物部署到您的网页服务器中。
+
+## 隐私说明
+
+本工具完全在本地浏览器运行，不涉及任何网页通信。生成所需数据均存放在本地，不会上传至服务器。
+
+## 后续计划（挖坑）
+
+- [X] 原生支持正方教务系统
+- [ ] 原生支持其他各类教务系统（欢迎适配）
+- [ ] 支持生成ICS访问链接，直接复制到手机导入（可自由同步，以防部分设备ICS支持导入显示不了）
+- [ ] 支持上传至WebDRV等日历软件
+
+## 其他
+
+本工具修改自本人约一年半前的一个[基于Python的ICS转换工具](https://github.com/QianziTech/Calendar_for_the_FinalExam)。由于该代码使用较为复杂（需安装Python环境），大部分人难以驾驭，再加上现在有了Vibe Coding等技术让我学会了一些前端，故对此工具做了这些修改与优化。特别感谢[LINUX DO](https://linux.do)的技术氛围让我有了做如此修改的动力（误

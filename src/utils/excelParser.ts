@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import { FILE_CONSTRAINTS } from '../constants/fieldMappings';
+import { ExcelParseError, wrapError } from './errors';
 
 /**
  * Excel 解析结果
@@ -29,7 +30,7 @@ export async function parseExcelFile(file: File): Promise<ExcelParseResult> {
     );
 
     if (!isValidExtension) {
-      throw new Error(
+      throw new ExcelParseError(
         `不支持的文件类型。请上传 ${FILE_CONSTRAINTS.allowedExtensions.join(' 或 ')} 格式的文件。`
       );
     }
@@ -39,7 +40,7 @@ export async function parseExcelFile(file: File): Promise<ExcelParseResult> {
   if (file.size > FILE_CONSTRAINTS.maxSize) {
     const maxSizeMB = FILE_CONSTRAINTS.maxSize / (1024 * 1024);
     const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-    throw new Error(
+    throw new ExcelParseError(
       `文件大小超限。当前文件 ${fileSizeMB} MB，最大允许 ${maxSizeMB} MB。`
     );
   }
@@ -53,7 +54,7 @@ export async function parseExcelFile(file: File): Promise<ExcelParseResult> {
 
     // 获取第一个工作表
     if (workbook.SheetNames.length === 0) {
-      throw new Error('Excel 文件中没有工作表。');
+      throw new ExcelParseError('Excel 文件中没有工作表。');
     }
 
     const sheetName = workbook.SheetNames[0];
@@ -67,12 +68,12 @@ export async function parseExcelFile(file: File): Promise<ExcelParseResult> {
 
     // 验证数据不为空
     if (jsonData.length === 0) {
-      throw new Error('Excel 文件中没有数据行（需要至少1行数据，不包括表头）。');
+      throw new ExcelParseError('Excel 文件中没有数据行（需要至少1行数据，不包括表头）。');
     }
 
     // 验证行数限制
     if (jsonData.length > FILE_CONSTRAINTS.maxRows) {
-      throw new Error(
+      throw new ExcelParseError(
         `数据行数超限。当前 ${jsonData.length} 行，最大允许 ${FILE_CONSTRAINTS.maxRows} 行。`
       );
     }
@@ -82,7 +83,7 @@ export async function parseExcelFile(file: File): Promise<ExcelParseResult> {
     const columns = Object.keys(firstRow).filter(col => col.trim() !== '');
 
     if (columns.length === 0) {
-      throw new Error('Excel 文件中没有有效的列名。');
+      throw new ExcelParseError('Excel 文件中没有有效的列名。');
     }
 
     return {
@@ -90,15 +91,7 @@ export async function parseExcelFile(file: File): Promise<ExcelParseResult> {
       columns
     };
   } catch (error) {
-    if (error instanceof Error) {
-      // 如果是我们自己抛出的错误，直接传递
-      if (error.message.includes('Excel 文件') || error.message.includes('数据')) {
-        throw error;
-      }
-      // XLSX 库的解析错误
-      throw new Error(`Excel 文件解析失败: ${error.message}`);
-    }
-    throw new Error('Excel 文件解析失败，文件可能已损坏。');
+    throw wrapError(error, ExcelParseError, 'Excel 文件解析失败');
   }
 }
 
