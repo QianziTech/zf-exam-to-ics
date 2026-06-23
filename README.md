@@ -11,8 +11,8 @@
 5. 点击“生成并下载ICS文件”完成ICS日历文件导出。
 
 ## 在线使用
+已通过Github Pages部署，可[点此访问](https://zf-exam-to-ics.qianzisama.com/)
 
-（待完善）
 
 ## 手动部署
 
